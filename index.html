@@ -1202,6 +1202,59 @@
         /* ========================================
            Responsive
            ======================================== */
+        /* Mobile Menu Toggle Button */
+        .mobile-menu-toggle {
+            display: none;
+            position: fixed;
+            top: 120px;
+            left: 16px;
+            width: 48px;
+            height: 48px;
+            background: var(--color-white);
+            border: 1px solid var(--color-neutral-200);
+            border-radius: 12px;
+            cursor: pointer;
+            align-items: center;
+            justify-content: center;
+            box-shadow: var(--shadow-md);
+            z-index: 200;
+            transition: all var(--transition-fast);
+        }
+
+        .mobile-menu-toggle:hover {
+            background: var(--color-primary-100);
+            border-color: var(--color-primary-400);
+        }
+
+        .mobile-menu-toggle svg {
+            width: 24px;
+            height: 24px;
+            color: var(--color-primary-700);
+        }
+
+        .app-container.alert-hidden .mobile-menu-toggle {
+            top: 16px;
+        }
+
+        /* Mobile Overlay */
+        .sidebar-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 90;
+            opacity: 0;
+            transition: opacity var(--transition-normal);
+        }
+
+        .sidebar-overlay.active {
+            display: block;
+            opacity: 1;
+        }
+
         @media (max-width: 1024px) {
             .sidebar {
                 transform: translateX(-100%);
@@ -1216,8 +1269,20 @@
                 margin-left: 0;
             }
 
+            .main-content.sidebar-collapsed {
+                margin-left: 0;
+            }
+
             .mobile-menu-toggle {
                 display: flex;
+            }
+
+            .sidebar-toggle {
+                display: none;
+            }
+
+            .content-header {
+                padding-left: 80px;
             }
         }
 
@@ -1327,6 +1392,18 @@
 
     <!-- Main App Container -->
     <div class="app-container" id="appContainer">
+        <!-- Mobile Menu Toggle Button -->
+        <button class="mobile-menu-toggle" id="mobileMenuToggle" onclick="toggleMobileMenu()" aria-label="Abrir menu de navegacao">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="3" y1="6" x2="21" y2="6"/>
+                <line x1="3" y1="12" x2="21" y2="12"/>
+                <line x1="3" y1="18" x2="21" y2="18"/>
+            </svg>
+        </button>
+
+        <!-- Sidebar Overlay for Mobile -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="closeMobileMenu()"></div>
+
         <!-- Sidebar Navigation -->
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
@@ -1345,7 +1422,7 @@
                 <div class="sidebar-section">
                     <div class="sidebar-section-title">Menu Principal</div>
                     
-                    <div class="nav-item active" data-page="home" onclick="navigateTo('home')">
+                    <div class="nav-item active" data-page="home" onclick="navigateTo('home'); closeMobileMenu();">
                         <div class="nav-item-icon home">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
@@ -1363,7 +1440,7 @@
                 <div class="sidebar-section">
                     <div class="sidebar-section-title">Servicos Publicos</div>
                     
-                    <div class="nav-item" data-page="seg-social" onclick="navigateTo('seg-social')">
+                    <div class="nav-item" data-page="seg-social" onclick="navigateTo('seg-social'); closeMobileMenu();">
                         <div class="nav-item-icon seg-social">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
@@ -1379,7 +1456,7 @@
                         <div class="nav-item-tooltip">Seguranca Social</div>
                     </div>
 
-                    <div class="nav-item" data-page="prociv" onclick="navigateTo('prociv')">
+                    <div class="nav-item" data-page="prociv" onclick="navigateTo('prociv'); closeMobileMenu();">
                         <div class="nav-item-icon prociv">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
@@ -1392,7 +1469,7 @@
                         <div class="nav-item-tooltip">Protecao Civil</div>
                     </div>
 
-                    <div class="nav-item" data-page="financas" onclick="navigateTo('financas')">
+                    <div class="nav-item" data-page="financas" onclick="navigateTo('financas'); closeMobileMenu();">
                         <div class="nav-item-icon financas">
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                                 <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
@@ -1940,6 +2017,38 @@
             
             banner.style.display = 'none';
             container.classList.add('alert-hidden');
+        }
+
+        // Mobile Menu Functions
+        function toggleMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            if (sidebar.classList.contains('open')) {
+                closeMobileMenu();
+            } else {
+                sidebar.classList.add('open');
+                overlay.classList.add('active');
+                document.body.style.overflow = 'hidden';
+            }
+        }
+
+        function closeMobileMenu() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            
+            sidebar.classList.remove('open');
+            overlay.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+
+        // Navigate to a page - updated to close mobile menu
+        function navigateToPage(page) {
+            navigateTo(page);
+            // Close mobile menu after navigation
+            if (window.innerWidth <= 1024) {
+                closeMobileMenu();
+            }
         }
 
         // Initialize
